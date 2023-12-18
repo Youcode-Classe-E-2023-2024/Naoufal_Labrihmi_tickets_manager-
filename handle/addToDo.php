@@ -8,12 +8,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $priority_id = $_POST['priority_id'];
     $tags = isset($_POST['tags']) ? $_POST['tags'] : [];
 
-    // Perform your database insertion
-    $stm = $conn->prepare("INSERT INTO todo (title, priority_id, created_at, status) VALUES (:title, :priority_id, NOW(), 'todo')");
-    $stm->bindParam(':title', $title, PDO::PARAM_STR);
-    $stm->bindParam(':priority_id', $priority_id, PDO::PARAM_INT);
+    // Get user ID from the session
+    $user_id = $session->get('user_id');
 
-    $success = $stm->execute();
+// Perform your database insertion
+$stm = $conn->prepare("INSERT INTO todo (title, priority_id, created_by, created_at, status) VALUES (:title, :priority_id, :created_by, NOW(), 'todo')");
+$stm->bindParam(':title', $title, PDO::PARAM_STR);
+$stm->bindParam(':priority_id', $priority_id, PDO::PARAM_INT);
+$stm->bindParam(':created_by', $user_id, PDO::PARAM_INT); // Corrected this line
+
+$success = $stm->execute();
 
     if ($success) {
         $newTaskId = $conn->lastInsertId();
@@ -40,27 +44,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $priorityStmt->execute();
         $priority = $priorityStmt->fetch(PDO::FETCH_ASSOC);
 
-        // Fetch tags for the new task
-        $tagsStmt = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
-        $tagsStmt->bindParam(':todo_id', $newTaskId, PDO::PARAM_INT);
-        $tagsStmt->execute();
-        $tagsList = $tagsStmt->fetchAll(PDO::FETCH_COLUMN);
+        
 
-        // Fetch developers for the new task
-        $developersStmt = $conn->prepare("SELECT developers.name FROM developers WHERE developers.id IN (" . implode(',', $developer_ids) . ")");
-        $developersStmt->execute();
-        $developersList = $developersStmt->fetchAll(PDO::FETCH_COLUMN);
+// Fetch the developer's name for the task
+$createdByStmt = $conn->prepare("SELECT developers.name FROM developers WHERE id = :created_by");
+$createdByStmt->bindParam(':created_by', $user_id, PDO::PARAM_INT);
+$createdByStmt->execute();
+$createdByName = $createdByStmt->fetch(PDO::FETCH_COLUMN);
 
-        $newTask = array(
-            'id' => $newTaskId,
-            'title' => $title,
-            'created_at' => date('Y-m-d H:i:s'),
-            'status' => 'todo',
-            'priority_id' => $priority_id,
-            'priority_name' => $priority['name'], // Add the priority's name to the new task
-            'tags' => $tagsList, // Add the selected tags to the new task
-            'developer_names' => $developersList, // Add the selected developer names to the new task
-        );
+// Fetch tags for the new task
+$tagsStmt = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
+$tagsStmt->bindParam(':todo_id', $newTaskId, PDO::PARAM_INT);
+$tagsStmt->execute();
+$tagsList = $tagsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Fetch developers for the new task
+$developersStmt = $conn->prepare("SELECT developers.name FROM developers WHERE developers.id IN (" . implode(',', $developer_ids) . ")");
+$developersStmt->execute();
+$developersList = $developersStmt->fetchAll(PDO::FETCH_COLUMN);
+
+
+$newTask = array(
+    'id' => $newTaskId,
+    'title' => $title,
+    'created_at' => date('Y-m-d H:i:s'),
+    'status' => 'todo',
+    'priority_id' => $priority_id,
+    'priority_name' => $priority['name'],
+    'created_by' => $createdByName, // Use the developer's name instead of ID
+    'tags' => $tagsList,
+    'developer_names' => $developersList,
+);
+
 
         $response = array('success' => true, 'newTask' => $newTask);
     } else {
