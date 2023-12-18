@@ -32,48 +32,47 @@ $user_id = $session->get('user_id');
                     data: formData,
                     dataType: "json",
                     // Success callback function
-                        // Success callback function
-success: function (response) {
-    if (response.success) {
-        var newTask = response.newTask;
+                        success: function (response) {
+                            if (response.success) {
+                                var newTask = response.newTask;
 
-        // Fetch developer names
-        var developerNames = newTask.developer_names.join(', ');
+                                // Fetch developer names
+                                var developerNames = newTask.developer_names.join(', ');
 
-        // Append the new task to the appropriate section
-        var taskHtml = `
-            <div class="alert alert-info p-2">
-                <h4>${newTask.title}</h4>
-                <h5>Task assigned to: ${developerNames}</h5>
-                <h5>Priority: ${newTask.priority_name}</h5>
-                ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
-                <h5>Created at: ${newTask.created_at}</h5>
-                <div class="d-flex justify-content-between mt-3">
-                    <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
-                    <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
-                </div>
-            </div>
-        `;
+                                // Append the new task to the appropriate section
+                                var taskHtml = `
+                                    <div class="alert alert-info p-2">
+                                        <h4>${newTask.title}</h4>
+                                        <h5>Task assigned to: ${developerNames}</h5>
+                                        <h5>Priority: ${newTask.priority_name}</h5>
+                                        ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
+                                        <h5>Created at: ${newTask.created_at}</h5>
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
+                                            <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
+                                        </div>
+                                    </div>
+                                `;
 
-        // Determine the section based on the task status
-        if (newTask.status === 'todo') {
-            $(".all-task").prepend(taskHtml);
-        } else if (newTask.status === 'doing') {
-            $(".doing-task").prepend(taskHtml);
-        } else if (newTask.status === 'done') {
-            $(".done-task").prepend(taskHtml);
-        }
+                                // Determine the section based on the task status
+                                if (newTask.status === 'todo') {
+                                    $(".all-task").prepend(taskHtml);
+                                } else if (newTask.status === 'doing') {
+                                    $(".doing-task").prepend(taskHtml);
+                                } else if (newTask.status === 'done') {
+                                    $(".done-task").prepend(taskHtml);
+                                }
 
-        // Clear the form
-        $("form")[0].reset();
+                                // Clear the form
+                                $("form")[0].reset();
 
-        // Reinitialize Bootstrap components
-        $('[data-toggle="tooltip"]').tooltip();
-    } else {
-        console.error(response.error);
-        // Handle errors and display messages
-    }
-},
+                                // Reinitialize Bootstrap components
+                                $('[data-toggle="tooltip"]').tooltip();
+                            } else {
+                                console.error(response.error);
+                                // Handle errors and display messages
+                            }
+                        },
 
 
                     error: function (error) {
