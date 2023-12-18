@@ -255,17 +255,16 @@ $user_id = $session->get('user_id');
     </div>
 </div>
 
-
-
 <!-- Doing Section -->
 <div class="col-md-3">
     <h4 class="text-white">Doing</h4>
     <div class="m-2 py-3 show-to-do doing-task">
         <?php
         $stm = $conn->query("
-            SELECT todo.*, priorities.name AS priority_name
+            SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
             FROM todo
             LEFT JOIN priorities ON todo.priority_id = priorities.id
+            LEFT JOIN developers ON todo.created_by = developers.id
             WHERE `status`='doing'
             ORDER BY todo.id DESC
         ");
@@ -304,6 +303,7 @@ $user_id = $session->get('user_id');
                 ?>
                 <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
                 <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
+                <h5>Created by: <?php echo $todo['created_by_name']; ?></h5>
                 <h5>Created at: <?php echo $todo['created_at']; ?></h5>
                 <!-- Add tags similar to the "All Task" section -->
                 <?php
@@ -329,16 +329,16 @@ $user_id = $session->get('user_id');
         <?php endwhile; ?>
     </div>
 </div>
-
 <!-- Done Section -->
 <div class="col-md-3">
     <h4 class="text-white">Done</h4>
     <div class="m-2 py-3 show-to-do done-task">
         <?php
         $stm = $conn->query("
-            SELECT todo.*, priorities.name AS priority_name
+            SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
             FROM todo
             LEFT JOIN priorities ON todo.priority_id = priorities.id
+            LEFT JOIN developers ON todo.created_by = developers.id
             WHERE `status`='done'
             ORDER BY todo.id DESC
         ");
@@ -378,6 +378,7 @@ $user_id = $session->get('user_id');
                 ?>
                 <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
                 <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
+                <h5>Created by: <?php echo $todo['created_by_name']; ?></h5>
                 <h5>Created at: <?php echo $todo['created_at']; ?></h5>
                 <!-- Add tags similar to the "All Task" section -->
                 <?php
@@ -400,6 +401,8 @@ $user_id = $session->get('user_id');
         <?php endwhile; ?>
     </div>
 </div>
+
+
 
 
 
