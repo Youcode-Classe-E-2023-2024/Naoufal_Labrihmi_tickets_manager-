@@ -20,71 +20,71 @@ $user_id = $session->get('user_id');
 <head>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $("form").submit(function (event) {
-                event.preventDefault();
+    $(document).ready(function () {
+        $("form").submit(function (event) {
+            event.preventDefault();
 
-                var formData = $(this).serialize();
+            var formData = $(this).serialize();
 
-                $.ajax({
-                    type: "POST",
-                    url: "handle/addToDo.php",
-                    data: formData,
-                    dataType: "json",
-                    // Success callback function
-                        success: function (response) {
-                            if (response.success) {
-                                var newTask = response.newTask;
+            $.ajax({
+                type: "POST",
+                url: "handle/addToDo.php",
+                data: formData,
+                dataType: "json",
+                // Success callback function
+                success: function (response) {
+                    if (response.success) {
+                        var newTask = response.newTask;
 
-                                // Fetch developer names
-                                var developerNames = newTask.developer_names.join(', ');
+                        // Fetch developer names
+                        var developerNames = newTask.developer_names.join(', ');
 
-                                // Append the new task to the appropriate section
-                                var taskHtml = `
-                                    <div class="alert alert-info p-2">
-                                        <h4>${newTask.title}</h4>
-                                        <h5>Task assigned to: ${developerNames}</h5>
-                                        <h5>Priority: ${newTask.priority_name}</h5>
-                                        ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
-                                        <h5>Created at: ${newTask.created_at}</h5>
-                                        <div class="d-flex justify-content-between mt-3">
-                                            <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
-                                            <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
-                                        </div>
-                                    </div>
-                                `;
+                        // Append the new task to the appropriate section
+                        var taskHtml = `
+                            <div class="alert alert-info p-2">
+                                <h4>${newTask.title}</h4>
+                                <h5>Task assigned to: ${developerNames}</h5>
+                                <h5>Priority: ${newTask.priority_name}</h5>
+                                ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
+                                <h5>Created by: ${newTask.created_by}</h5> <!-- Updated line -->
+                                <h5>Created at: ${newTask.created_at}</h5>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
+                                    <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
+                                </div>
+                            </div>
+                        `;
 
-                                // Determine the section based on the task status
-                                if (newTask.status === 'todo') {
-                                    $(".all-task").prepend(taskHtml);
-                                } else if (newTask.status === 'doing') {
-                                    $(".doing-task").prepend(taskHtml);
-                                } else if (newTask.status === 'done') {
-                                    $(".done-task").prepend(taskHtml);
-                                }
+                        // Determine the section based on the task status
+                        if (newTask.status === 'todo') {
+                            $(".all-task").prepend(taskHtml);
+                        } else if (newTask.status === 'doing') {
+                            $(".doing-task").prepend(taskHtml);
+                        } else if (newTask.status === 'done') {
+                            $(".done-task").prepend(taskHtml);
+                        }
 
-                                // Clear the form
-                                $("form")[0].reset();
+                        // Clear the form
+                        $("form")[0].reset();
 
-                                // Reinitialize Bootstrap components
-                                $('[data-toggle="tooltip"]').tooltip();
-                            } else {
-                                console.error(response.error);
-                                // Handle errors and display messages
-                            }
-                        },
-
-
-                    error: function (error) {
-                        console.error("AJAX request failed:", error);
-                        // Handle AJAX errors
+                        // Reinitialize Bootstrap components
+                        $('[data-toggle="tooltip"]').tooltip();
+                    } else {
+                        console.error(response.error);
+                        // Handle errors and display messages
                     }
-                });
+                },
+
+                error: function (error) {
+                    console.error("AJAX request failed:", error);
+                    // Handle AJAX errors
+                }
             });
         });
-    </script>
+    });
+</script>
+
 </head>
-<body>
 <body style="background-image: url(imgs/wp7969113-blurry-ultra-hd-wallpapers.jpg); background-size: cover; background-repeat: no-repeat; ">
   
     <div class="container my-3 ">
@@ -174,15 +174,16 @@ $user_id = $session->get('user_id');
 
         <div class="row d-flex justify-content-between">
             <!-- all -->
-           <!-- All Task Section -->
+          <!-- All Task Section -->
 <div class="col-md-3">
     <h4 class="text-white">All Task</h4>
     <div class="m-2 py-3 show-to-do all-task">
         <?php
         $stm = $conn->query("
-            SELECT todo.*, priorities.name AS priority_name
+            SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
             FROM todo
             LEFT JOIN priorities ON todo.priority_id = priorities.id
+            LEFT JOIN developers ON todo.created_by = developers.id
             WHERE todo.`status`='todo'
             ORDER BY todo.id DESC
         ");
@@ -218,9 +219,16 @@ $user_id = $session->get('user_id');
                         // If there was an error executing the query, set a default value or handle accordingly
                         $todo['developer_names'] = ['Unknown Developer'];
                     }
+
+                    // Fetch the created by name
+                    $createdByStmt = $conn->prepare("SELECT name FROM developers WHERE id = :created_by");
+                    $createdByStmt->bindParam(':created_by', $todo['created_by'], PDO::PARAM_INT);
+                    $createdByStmt->execute();
+                    $createdByName = $createdByStmt->fetch(PDO::FETCH_COLUMN);
                     ?>
                     <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
                     <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
+                    <h5>Created by: <?php echo $createdByName; ?></h5>
                     <h5>Created at: <?php echo $todo['created_at']; ?></h5>
                     <!-- Add tags similar to the "Doing" and "Done" sections -->
                     <?php
@@ -246,6 +254,7 @@ $user_id = $session->get('user_id');
         <?php endif; ?>
     </div>
 </div>
+
 
 
 <!-- Doing Section -->
