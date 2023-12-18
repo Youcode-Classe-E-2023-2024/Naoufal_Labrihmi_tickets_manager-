@@ -4,14 +4,13 @@ require_once '../App.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Assuming you have appropriate validation and sanitation in place
     $title = $_POST['title'];
-    $developer_id = $_POST['developer_id'];
+    $developer_ids = isset($_POST['developer_ids']) ? $_POST['developer_ids'] : [];
     $priority_id = $_POST['priority_id'];
     $tags = isset($_POST['tags']) ? $_POST['tags'] : [];
 
     // Perform your database insertion
-    $stm = $conn->prepare("INSERT INTO todo (title, developer_id, priority_id, created_at, status) VALUES (:title, :developer_id, :priority_id, NOW(), 'todo')");
+    $stm = $conn->prepare("INSERT INTO todo (title, priority_id, created_at, status) VALUES (:title, :priority_id, NOW(), 'todo')");
     $stm->bindParam(':title', $title, PDO::PARAM_STR);
-    $stm->bindParam(':developer_id', $developer_id, PDO::PARAM_INT);
     $stm->bindParam(':priority_id', $priority_id, PDO::PARAM_INT);
 
     $success = $stm->execute();
@@ -27,11 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tagStmt->execute();
         }
 
-        // Fetch the developer's name
-        $developerStmt = $conn->prepare("SELECT name FROM developers WHERE id = :developer_id");
-        $developerStmt->bindParam(':developer_id', $developer_id, PDO::PARAM_INT);
-        $developerStmt->execute();
-        $developer = $developerStmt->fetch(PDO::FETCH_ASSOC);
+        // Insert developers into todo_developers table
+        foreach ($developer_ids as $developer_id) {
+            $insertTodoDevelopers = $conn->prepare("INSERT INTO todo_developers (todo_id, developer_id) VALUES (:todo_id, :developer_id)");
+            $insertTodoDevelopers->bindParam(':todo_id', $newTaskId, PDO::PARAM_INT);
+            $insertTodoDevelopers->bindParam(':developer_id', $developer_id, PDO::PARAM_INT);
+            $insertTodoDevelopers->execute();
+        }
 
         // Fetch the priority name
         $priorityStmt = $conn->prepare("SELECT name FROM priorities WHERE id = :priority_id");
@@ -45,16 +46,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tagsStmt->execute();
         $tagsList = $tagsStmt->fetchAll(PDO::FETCH_COLUMN);
 
+        // Fetch developers for the new task
+        $developersStmt = $conn->prepare("SELECT developers.name FROM developers WHERE developers.id IN (" . implode(',', $developer_ids) . ")");
+        $developersStmt->execute();
+        $developersList = $developersStmt->fetchAll(PDO::FETCH_COLUMN);
+
         $newTask = array(
             'id' => $newTaskId,
             'title' => $title,
             'created_at' => date('Y-m-d H:i:s'),
             'status' => 'todo',
-            'developer_id' => $developer_id,
-            'developer_name' => $developer['name'], // Add the developer's name to the new task
             'priority_id' => $priority_id,
             'priority_name' => $priority['name'], // Add the priority's name to the new task
             'tags' => $tagsList, // Add the selected tags to the new task
+            'developer_names' => $developersList, // Add the selected developer names to the new task
         );
 
         $response = array('success' => true, 'newTask' => $newTask);

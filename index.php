@@ -31,43 +31,51 @@ $user_id = $session->get('user_id');
                     url: "handle/addToDo.php",
                     data: formData,
                     dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            // Append the new task to the appropriate section
-                            var newTask = response.newTask;
-                            var taskHtml = `
-                                <div class="alert alert-info p-2">
-                                    <h4>${newTask.title}</h4>
-                                    <h5>Task assigned to: ${newTask.developer_name}</h5>
-                                    <h5>Priority: ${newTask.priority_name}</h5>
-                                    ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
-                                    <h5>Created at: ${newTask.created_at}</h5>
-                                    <div class="d-flex justify-content-between mt-3">
-                                        <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
-                                        <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
-                                    </div>
-                                </div>
-                            `;
+                    // Success callback function
+                        // Success callback function
+success: function (response) {
+    if (response.success) {
+        var newTask = response.newTask;
 
-                            // Determine the section based on the task status
-                            if (newTask.status === 'todo') {
-                                $(".all-task").prepend(taskHtml);
-                            } else if (newTask.status === 'doing') {
-                                $(".doing-task").prepend(taskHtml);
-                            } else if (newTask.status === 'done') {
-                                $(".done-task").prepend(taskHtml);
-                            }
+        // Fetch developer names
+        var developerNames = newTask.developer_names.join(', ');
 
-                            // Clear the form
-                            $("form")[0].reset();
+        // Append the new task to the appropriate section
+        var taskHtml = `
+            <div class="alert alert-info p-2">
+                <h4>${newTask.title}</h4>
+                <h5>Task assigned to: ${developerNames}</h5>
+                <h5>Priority: ${newTask.priority_name}</h5>
+                ${newTask.tags.length > 0 ? `<h5>Tags: ${newTask.tags.join(', ')}</h5>` : ''}
+                <h5>Created at: ${newTask.created_at}</h5>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
+                    <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
+                </div>
+            </div>
+        `;
 
-                            // Reinitialize Bootstrap components
-                            $('[data-toggle="tooltip"]').tooltip();
-                        } else {
-                            console.error(response.error);
-                            // Handle errors and display messages
-                        }
-                    },
+        // Determine the section based on the task status
+        if (newTask.status === 'todo') {
+            $(".all-task").prepend(taskHtml);
+        } else if (newTask.status === 'doing') {
+            $(".doing-task").prepend(taskHtml);
+        } else if (newTask.status === 'done') {
+            $(".done-task").prepend(taskHtml);
+        }
+
+        // Clear the form
+        $("form")[0].reset();
+
+        // Reinitialize Bootstrap components
+        $('[data-toggle="tooltip"]').tooltip();
+    } else {
+        console.error(response.error);
+        // Handle errors and display messages
+    }
+},
+
+
                     error: function (error) {
                         console.error("AJAX request failed:", error);
                         // Handle AJAX errors
@@ -92,29 +100,28 @@ $user_id = $session->get('user_id');
 
         <div class="row d-flex justify-content-center">
         <?php
-            // Logout button
+            // Logout button    
             echo '<a href="logout.php" class="btn btn-danger">Logout</a>';
             ?>
 
-            <div class="container mb-5 d-flex justify-content-center">
-                <div class="col-md-4">
-                    <form action="handle/addToDo.php" method="post">
-                        <textarea type="text" class="form-control" rows="3" name="title" id="" placeholder="Task name and Description"></textarea>
+<div class="container mb-5 d-flex justify-content-center">
+    <div class="col-md-4">
+        <form action="handle/addToDo.php" method="post">
+            <textarea type="text" class="form-control" rows="3" name="title" id="" placeholder="Task name and Description"></textarea>
 
-                        <!-- Add a select dropdown for developers -->
-                        <div class="mb-3">
-                            <label for="developer" class="form-label">Assign to Developer:</label>
-                            <select class="form-select" name="developer_id" id="developer">
-                                <option value="">Select Developer</option>
-                                <?php
-                                // Fetch developers from the database
-                                $developersQuery = $conn->query("SELECT * FROM developers");
-                                while ($developer = $developersQuery->fetch(PDO::FETCH_ASSOC)) {
-                                    echo "<option value='{$developer['id']}'>{$developer['name']}</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
+            <!-- Add a select dropdown for developers with multiple selection -->
+            <div class="mb-3">
+                <label for="developer" class="form-label">Assign to Developer(s):</label>
+                <select class="form-select" name="developer_ids[]" id="developer" multiple>
+                    <!-- Select multiple developers -->
+                    <?php
+                    $developersQuery = $conn->query("SELECT * FROM developers");
+                    while ($developer = $developersQuery->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$developer['id']}'>{$developer['name']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
                         <!-- Add a select dropdown for priorities -->
                         <!-- Add a select dropdown for priorities -->
                         <div class="mb-3">
@@ -168,47 +175,76 @@ $user_id = $session->get('user_id');
 
         <div class="row d-flex justify-content-between">
             <!-- all -->
-            <!-- All Task Section -->
+           <!-- All Task Section -->
 <div class="col-md-3">
     <h4 class="text-white">All Task</h4>
     <div class="m-2 py-3 show-to-do all-task">
         <?php
-        $stm = $conn->query("SELECT todo.*, developers.name AS developer_name, priorities.name AS priority_name FROM todo LEFT JOIN developers ON todo.developer_id = developers.id LEFT JOIN priorities ON todo.priority_id = priorities.id WHERE `status`='todo' ORDER BY todo.id DESC");
+        $stm = $conn->query("
+            SELECT todo.*, priorities.name AS priority_name
+            FROM todo
+            LEFT JOIN priorities ON todo.priority_id = priorities.id
+            WHERE todo.`status`='todo'
+            ORDER BY todo.id DESC
+        ");
         ?>
-        <?php if ($stm->rowcount() < 1) : ?>
+        <?php if ($stm->rowCount() < 1) : ?>
             <div class="item">
-                <div class="alert-info text-center ">
-                    empty to do task
+                <div class="alert-info text-center">
+                    Empty to do task
                 </div>
             </div>
-        <?php endif; ?>
-        <?php while ($todo = $stm->fetch(PDO::FETCH_ASSOC)) : ?>
-            <div class="alert alert-info p-2">
-                <h4><?php echo $todo['title']; ?></h4>
-                <h5>Task assigned to: <?php echo $todo['developer_name']; ?></h5>
-                <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
-                <h5>Created at: <?php echo $todo['created_at']; ?></h5>
-                <!-- Add tags similar to the "Doing" and "Done" sections -->
-                <?php
-                $tagsQuery = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
-                $tagsQuery->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
-                $tagsQuery->execute();
-                $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
-                ?>
-                <?php if (!empty($tags)) : ?>
-                    <div class="mb-2">
-                        <strong>Tags: </strong>
-                        <?php foreach ($tags as $tag) : ?>
-                            <span class="badge bg-info"><?php echo $tag['name']; ?></span>
-                        <?php endforeach; ?>
+        <?php else : ?>
+            <?php while ($todo = $stm->fetch(PDO::FETCH_ASSOC)) : ?>
+                <div class="alert alert-info p-2">
+                    <h4><?php echo $todo['title']; ?></h4>
+                    <?php
+                    // Fetch the developer names for the task
+                    $developerStmt = $conn->prepare("SELECT developers.name FROM developers INNER JOIN todo_developers ON developers.id = todo_developers.developer_id WHERE todo_developers.todo_id = :todo_id");
+                    $developerStmt->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+
+                    if ($developerStmt->execute()) {
+                        // Fetch the result
+                        $developerNames = $developerStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                        // Check if the developer names were found
+                        if ($developerNames !== false) {
+                            // Set the developer names in the $todo array
+                            $todo['developer_names'] = $developerNames;
+                        } else {
+                            // If developer names are not found, set a default value or handle accordingly
+                            $todo['developer_names'] = ['Unknown Developer'];
+                        }
+                    } else {
+                        // If there was an error executing the query, set a default value or handle accordingly
+                        $todo['developer_names'] = ['Unknown Developer'];
+                    }
+                    ?>
+                    <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
+                    <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
+                    <h5>Created at: <?php echo $todo['created_at']; ?></h5>
+                    <!-- Add tags similar to the "Doing" and "Done" sections -->
+                    <?php
+                    $tagsQuery = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
+                    $tagsQuery->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+                    $tagsQuery->execute();
+                    $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+                    <?php if (!empty($tags)) : ?>
+                        <div class="mb-2">
+                            <strong>Tags: </strong>
+                            <?php foreach ($tags as $tag) : ?>
+                                <span class="badge bg-info"><?php echo $tag['name']; ?></span>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
+                        <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Doing</a>
                     </div>
-                <?php endif; ?>
-                <div class="d-flex justify-content-between mt-3">
-                    <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
-                    <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Doing</a>
                 </div>
-            </div>
-        <?php endwhile; ?>
+            <?php endwhile; ?>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -218,19 +254,47 @@ $user_id = $session->get('user_id');
     <h4 class="text-white">Doing</h4>
     <div class="m-2 py-3 show-to-do doing-task">
         <?php
-        $stm = $conn->query("SELECT todo.*, developers.name AS developer_name, priorities.name AS priority_name FROM todo LEFT JOIN developers ON todo.developer_id = developers.id LEFT JOIN priorities ON todo.priority_id = priorities.id WHERE `status`='doing' ORDER BY todo.id DESC");
+        $stm = $conn->query("
+            SELECT todo.*, priorities.name AS priority_name
+            FROM todo
+            LEFT JOIN priorities ON todo.priority_id = priorities.id
+            WHERE `status`='doing'
+            ORDER BY todo.id DESC
+        ");
         ?>
-        <?php if ($stm->rowcount() < 1) : ?>
+        <?php if ($stm->rowCount() < 1) : ?>
             <div class="item">
                 <div class="alert-success text-center ">
-                    empty to do task
+                    No tasks in progress
                 </div>
             </div>
         <?php endif; ?>
         <?php while ($todo = $stm->fetch(PDO::FETCH_ASSOC)) : ?>
             <div class="alert alert-success p-2">
                 <h4><?php echo $todo['title']; ?></h4>
-                <h5>Task assigned to: <?php echo $todo['developer_name']; ?></h5>
+                <?php
+                // Fetch the developer names for the task
+                $developerStmt = $conn->prepare("SELECT developers.name FROM developers INNER JOIN todo_developers ON developers.id = todo_developers.developer_id WHERE todo_developers.todo_id = :todo_id");
+                $developerStmt->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+
+                if ($developerStmt->execute()) {
+                    // Fetch the result
+                    $developerNames = $developerStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                    // Check if the developer names were found
+                    if ($developerNames !== false) {
+                        // Set the developer names in the $todo array
+                        $todo['developer_names'] = $developerNames;
+                    } else {
+                        // If developer names are not found, set a default value or handle accordingly
+                        $todo['developer_names'] = ['Unknown Developer'];
+                    }
+                } else {
+                    // If there was an error executing the query, set a default value or handle accordingly
+                    $todo['developer_names'] = ['Unknown Developer'];
+                }
+                ?>
+                <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
                 <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
                 <h5>Created at: <?php echo $todo['created_at']; ?></h5>
                 <!-- Add tags similar to the "All Task" section -->
@@ -263,12 +327,18 @@ $user_id = $session->get('user_id');
     <h4 class="text-white">Done</h4>
     <div class="m-2 py-3 show-to-do done-task">
         <?php
-        $stm = $conn->query("SELECT todo.*, developers.name AS developer_name, priorities.name AS priority_name FROM todo LEFT JOIN developers ON todo.developer_id = developers.id LEFT JOIN priorities ON todo.priority_id = priorities.id WHERE `status`='done' ORDER BY todo.id DESC");
+        $stm = $conn->query("
+            SELECT todo.*, priorities.name AS priority_name
+            FROM todo
+            LEFT JOIN priorities ON todo.priority_id = priorities.id
+            WHERE `status`='done'
+            ORDER BY todo.id DESC
+        ");
         ?>
-        <?php if ($stm->rowcount() < 1) : ?>
+        <?php if ($stm->rowCount() < 1) : ?>
             <div class="item">
-                <div class="alert-warning text-center ">
-                    empty to do task
+                <div class="alert-warning text-center">
+                    No tasks completed
                 </div>
             </div>
         <?php endif; ?>
@@ -276,7 +346,29 @@ $user_id = $session->get('user_id');
             <div class="alert alert-warning p-2">
                 <a href="handle/delete.php?id=<?php echo $todo['id'] ?>" onclick="confirm('are you sure')" class="remove-to-do text-dark d-flex justify-content-end "><i class="fa fa-close" style="font-size:16px;"></i></a>
                 <h4><?php echo $todo['title']; ?></h4>
-                <h5>Task assigned to: <?php echo $todo['developer_name']; ?></h5>
+                <?php
+                // Fetch the developer names for the task
+                $developerStmt = $conn->prepare("SELECT developers.name FROM developers INNER JOIN todo_developers ON developers.id = todo_developers.developer_id WHERE todo_developers.todo_id = :todo_id");
+                $developerStmt->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+
+                if ($developerStmt->execute()) {
+                    // Fetch the result
+                    $developerNames = $developerStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                    // Check if the developer names were found
+                    if ($developerNames !== false) {
+                        // Set the developer names in the $todo array
+                        $todo['developer_names'] = $developerNames;
+                    } else {
+                        // If developer names are not found, set a default value or handle accordingly
+                        $todo['developer_names'] = ['Unknown Developer'];
+                    }
+                } else {
+                    // If there was an error executing the query, set a default value or handle accordingly
+                    $todo['developer_names'] = ['Unknown Developer'];
+                }
+                ?>
+                <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
                 <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
                 <h5>Created at: <?php echo $todo['created_at']; ?></h5>
                 <!-- Add tags similar to the "All Task" section -->
@@ -300,6 +392,7 @@ $user_id = $session->get('user_id');
         <?php endwhile; ?>
     </div>
 </div>
+
 
 
 
