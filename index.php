@@ -126,7 +126,10 @@
     <div class="container mb-5 d-flex justify-content-center">
         <div class="col-md-4">
             <form action="handle/addToDo.php" method="post">
-                <textarea type="text" class="form-control" rows="3" name="title" id="" placeholder="Task name and Description"></textarea>
+                <input type="text" class="form-control" rows="3" name="title" id="" placeholder="Task name">
+                <br>
+                  <!-- Add a textarea for task description -->
+                  <textarea class="form-control" rows="5" name="description" placeholder="Task description"></textarea>
 
                 <!-- Add a select dropdown for developers with multiple selection -->
                 <div class="mb-3">
