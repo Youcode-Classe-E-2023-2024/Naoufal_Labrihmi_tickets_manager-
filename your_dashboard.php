@@ -71,10 +71,10 @@ function getDeveloperNames($conn, $todo_id) {
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item active">
-                <a class="nav-link" href="dashboard.php">Dashboard</a>
+                <a class="nav-link" href="dashboard.php">Created by me</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="your_dashboard.php">Your Dashboard</a>
+                <a class="nav-link" href="your_dashboard.php">Assigned to me</a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -141,8 +141,10 @@ function getDeveloperNames($conn, $todo_id) {
                             </div>
                         <?php endif; ?>
                         <!-- Add your buttons or actions specific to this section -->
+                        <div class="d-flex justify-content-between mt-3">
                         <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                         <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>&referrer=your_dashboard.php" class="btn btn-info p-1 text-white">Doing</a>
+                        </div>
                     </div>
                 <?php endwhile; ?>
             <?php endif; ?>
@@ -205,8 +207,10 @@ function getDeveloperNames($conn, $todo_id) {
                             </div>
                         <?php endif; ?>
                         <!-- Add your buttons or actions specific to this section -->
+                        <div class="d-flex justify-content-between mt-3">
                         <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                         <a href="handle/goto.php?name=done&id=<?php echo $todo['id'] ?>&referrer=your_dashboard.php" class="btn btn-info p-1 text-white">Done</a>
+                        </div>
                     </div>
                 <?php endwhile; ?>
             <?php endif; ?>

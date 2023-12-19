@@ -96,10 +96,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item active">
-                <a class="nav-link" href="dashboard.php">Dashboard</a>
+                <a class="nav-link" href="dashboard.php">Created by me</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="your_dashboard.php">Your Dashboard</a>
+                <a class="nav-link" href="your_dashboard.php">Assigned to me</a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
