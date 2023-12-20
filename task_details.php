@@ -66,6 +66,7 @@ $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
     <title>Task Details</title>
     <!-- Add your CSS links or stylesheets here -->
     <link rel="stylesheet" href="your-styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
     <!-- Add your HTML content here for displaying task details -->
@@ -92,75 +93,50 @@ $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
                 <a href="index.php" class="btn btn-info">Back to All Tasks</a>
             </div>
         </div>
-<!-- Include jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-<!-- Add this section to display comments -->
-<div class="mt-3">
-    <h3>Comments</h3>
-    <ul id="commentList">
-        <!-- Existing comments will be displayed here -->
-    </ul>
-</div>
-
-<!-- Add this form for submitting new comments -->
-<div class="mt-3">
-    <h3>Add a Comment</h3>
-    <form id="commentForm">
+<!-- Comment Section -->
+<!-- Comment Section -->
+<div class="mt-4">
+<h4><strong>Comments</strong></h4>
+<!-- Add new comment form -->
+<form method="post" action="add_comment.php"> <!-- Create add_comment.php to handle form submission -->
         <div class="mb-3">
-            <label for="commentText" class="form-label">Comment:</label>
-            <textarea class="form-control" id="commentText" name="commentText" rows="3"></textarea>
+            <label for="commentText" class="form-label">Add a Comment:</label>
+            <textarea class="form-control" id="commentText" name="comment_text" rows="3" required></textarea>
         </div>
-        <button type="button" class="btn btn-primary" onclick="submitComment()">Submit Comment</button>
+        <input type="hidden" name="task_id" value="<?= $task_id ?>">
+        <button type="submit" class="btn btn-primary">Submit Comment</button>
     </form>
+    <br>
+        <?php
+        // Fetch comments for the task
+        $commentsQuery = $conn->prepare("SELECT comments.*, developers.name AS commenter_name FROM comments INNER JOIN developers ON comments.posted_by = developers.id WHERE comments.task_id = :task_id");
+        $commentsQuery->bindParam(':task_id', $task_id, PDO::PARAM_INT);
+        $commentsQuery->execute();
+        $comments = $commentsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+        // Display comments
+        if (!empty($comments)) {
+            foreach ($comments as $comment) {
+                ?>
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <p class="card-text"><?= htmlspecialchars($comment['comment_text']) ?></p>
+                        <p class="card-subtitle text-muted">
+                            Posted by: <?= htmlspecialchars($comment['commenter_name']) ?> on <?= htmlspecialchars($comment['created_at']) ?>
+                        </p>
+                    </div>
+                </div>
+                <?php
+            }
+        } else {
+            echo "<p>No comments yet.</p>";
+        }
+        ?>
+    </div>
 </div>
 
-<script>
-    // Function to submit a new comment
-    function submitComment() {
-        var commentText = $('#commentText').val();
+    </div>
+</body>
+</html>
 
-        // Check if the comment is not empty
-        if (commentText.trim() !== '') {
-            // Make an AJAX request to save the comment
-            $.ajax({
-                url: 'save_comment.php', // Replace with the actual server-side script to handle comment submission
-                method: 'POST',
-                data: { commentText: commentText },
-                success: function (response) {
-                    // If the comment is successfully saved, add it to the comment list
-                    $('#commentList').append('<li>' + commentText + '</li>');
-                    // Clear the textarea
-                    $('#commentText').val('');
-                },
-                error: function (error) {
-                    console.error('Error submitting comment:', error);
-                }
-            });
-        }
-    }
 
-    // Function to load existing comments (you may need to modify this based on your server-side implementation)
-    function loadComments() {
-        $.ajax({
-            url: 'load_comments.php', // Replace with the actual server-side script to load comments
-            method: 'GET',
-            success: function (response) {
-                // Assuming the response is an array of comments
-                var comments = response.comments;
-                // Populate the comment list
-                comments.forEach(function (comment) {
-                    $('#commentList').append('<li>' + comment.comment_text + '</li>');
-                });
-            },
-            error: function (error) {
-                console.error('Error loading comments:', error);
-            }
-        });
-    }
-
-    // Load existing comments when the page loads
-    $(document).ready(function () {
-        loadComments();
-    });
-</script>
