@@ -41,16 +41,16 @@
     function fetchTasksByStatus($conn, $user_id, $status)
     {
         $stm = $conn->prepare("
-            SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
-            FROM todo
-            LEFT JOIN priorities ON todo.priority_id = priorities.id
-            LEFT JOIN developers ON todo.created_by = developers.id
-            WHERE todo.`status` = :status AND todo.created_by = :user_id
-            ORDER BY todo.id DESC
-        ");
-        $stm->bindParam(':status', $status, PDO::PARAM_STR);
-        $stm->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stm->execute();
+        SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
+        FROM todo
+        LEFT JOIN priorities ON todo.priority_id = priorities.id
+        LEFT JOIN developers ON todo.created_by = developers.id
+        WHERE todo.`status` = :status
+        ORDER BY todo.id DESC
+    ");
+    $stm->bindParam(':status', $status, PDO::PARAM_STR);
+    $stm->execute();
+    
 
         $html = '';
 
