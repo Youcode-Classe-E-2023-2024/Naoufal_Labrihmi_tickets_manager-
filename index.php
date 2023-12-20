@@ -145,7 +145,6 @@
                     </select>
                 </div>
                             <!-- Add a select dropdown for priorities -->
-                            <!-- Add a select dropdown for priorities -->
                             <div class="mb-3">
                                 <label for="priority" class="form-label">Select Priority:</label>
                                 <select class="form-select" name="priority_id" id="priority">
