@@ -141,7 +141,6 @@ function getDeveloperNames($conn, $todo_id) {
                                     </div>
                                 <?php endif; ?>
                                 <div class="d-flex justify-content-between mt-3">
-                                    <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                                     <a href="task_details.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Details</a>
                                     <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>&referrer=dashboard.php" class="btn btn-info p-1 text-white">Doing</a>
                                 </div>
@@ -205,7 +204,6 @@ function getDeveloperNames($conn, $todo_id) {
                                     </div>
                                 <?php endif; ?>
                                 <div class="d-flex justify-content-between mt-3">
-                                    <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                                     <a href="task_details.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Details</a>
                                     <a href="handle/goto.php?name=done&id=<?php echo $todo['id']; ?>&referrer=dashboard.php" class="btn btn-info p-1 text-white">Done</a>
                                 </div>

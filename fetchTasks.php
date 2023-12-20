@@ -93,7 +93,6 @@
                     " . (!empty($tags) ? "<p><strong>Tags:</strong> " . implode(', ', array_column($tags, 'name')) . "</p>" : "") . "
                     <!-- Add more details as needed -->
                     <div class='d-flex justify-content-between mt-3'>
-                        <a href='edit.php?id={$todo['id']}' class='btn btn-info p-1 text-white'>Edit</a>
                         <a href='task_details.php?id={$todo['id']}' class='btn btn-info p-1 text-white'>Details</a>
                         
                         "/* . ($status === 'todo' ? "<a href='handle/goto.php?name=doing&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Doing</a>" : "") */ ."

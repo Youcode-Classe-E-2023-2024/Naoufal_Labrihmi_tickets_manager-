@@ -76,7 +76,6 @@
                                     <h5>Created by: ${newTask.created_by}</h5> <!-- Updated line -->
                                     <h5>Created at: ${newTask.created_at}</h5>
                                     <div class="d-flex justify-content-between mt-3">
-                                        <a href="edit.php?id=${newTask.id}" class="btn btn-info p-1 text-white">edit</a>
                                         <a href="handle/goto.php?name=doing&id=${newTask.id}" class="btn btn-info p-1 text-white">doing</a>
                                     </div>
                                 </div>
@@ -293,7 +292,6 @@
                         </div>
                     <?php endif; ?>
                     <div class="d-flex justify-content-between mt-3">
-                        <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                         <a href="task_details.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Details</a>
                         <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>&referrer=index.php" class="btn btn-info p-1 text-white">Doing</a>
                     </div>
@@ -371,7 +369,6 @@
                     <?php endif; ?>
                     <div class="d-flex justify-content-between mt-3">
                         <!-- Add your buttons or actions for the "Doing" section here -->
-                        <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
                         <a href="handle/goto.php?name=done&id=<?php echo $todo['id'] ?>&referrer=index.php" class="btn btn-info p-1 text-white">Done</a>
                     </div>
                 </div>
