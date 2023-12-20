@@ -15,6 +15,7 @@ Kanban for Developers is a web application designed to facilitate task managemen
   - Created At
   - Priority
   - Tags
+  - Assigned Developers
 
 ### Authentication
 - **Login:** Developers can log in to their accounts securely.
@@ -43,10 +44,10 @@ Kanban for Developers is a web application designed to facilitate task managemen
    - Fields: `id`, `name`, `email`, `username`, `password`
 
 4. `priorities`
-   - Fields: `id`, `name`
+   - Fields: `id`, `name` (High, Medium, Low)
 
 5. `tags`
-   - Fields: `id`, `name`
+   - Fields: `id`, `name` (Feature, Bug, Enhancement)
 
 6. `todo`
    - Fields: `id`, `title`, `description`, `created_at`, `status`, `priority_id`, `created_by`
@@ -62,6 +63,15 @@ Kanban for Developers is a web application designed to facilitate task managemen
 - Examples:
   - `comments.task_id` links to `todo.id`
   - `comments.posted_by` links to `developers.id`
+  - `todo.priority_id` links to `priorities.id`
+  - `todo_tags.tag_id` links to `tags.id`
+  - `todo_developers.developer_id` links to `developers.id`
+
+### Tags
+- Tags include `Feature`, `Bug`, and `Enhancement`.
+
+### Task Assignment
+- Tasks can be assigned to multiple developers.
 
 ## Technologies Used
 - **Frontend:** Bootstrap for a responsive and visually appealing interface.
@@ -69,9 +79,12 @@ Kanban for Developers is a web application designed to facilitate task managemen
 - **Asynchronous Requests:** Ajax for seamless and fast interactions.
 
 ## Database
-- **SQL:** The database is built using SQL, with tables for tasks, developers, priorities, tags, comments, and more.
+- **SQL:** The database is named `br` and can be created using the provided `br.sql` script.
+
+### Instructions for Database
+1. Create a database named `br`.
+2. Execute the SQL script `br.sql` to set up the tables and insert sample data.
 
 ## Conclusion
 Kanban for Developers provides an efficient way for developers to manage tasks, collaborate through comments, and track progress on the Kanban board.
 
-**Note:** Ensure to secure sensitive information, such as passwords and database credentials, in a production environment.
