@@ -21,19 +21,44 @@
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
          <!-- Bootstrap CSS CDN -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <script>
-        $(document).ready(function () {
-            $("form").submit(function (event) {
-                event.preventDefault();
+    <script>
+    $(document).ready(function () {
+        // Function to fetch and update tasks
+        function fetchTasks() {
+            $.ajax({
+                type: "GET",
+                url: "fetchTasks.php", // Corrected URL
+                dataType: "json",
+                success: function (response) {
+                    // Update the task sections with the latest data
+                    $(".all-task").html(response.todoHtml);
+                    $(".doing-task").html(response.doingHtml);
+                    $(".done-task").html(response.doneHtml);
+                },
+                error: function (error) {
+                    console.error("Failed to fetch tasks:", error);
+                    // Handle errors if needed
+                }
+            });
+        }
 
-                var formData = $(this).serialize();
+        // Initial fetch of tasks
+        fetchTasks();
+
+        // Periodically fetch tasks every 5 seconds
+        setInterval(fetchTasks, 5000);
+
+        // Form submission AJAX code
+        $("form").submit(function (event) {
+            event.preventDefault();
+
+            var formData = $(this).serialize();
 
                 $.ajax({
                     type: "POST",
                     url: "handle/addToDo.php",
                     data: formData,
                     dataType: "json",
-                    // Success callback function
                     success: function (response) {
                         if (response.success) {
                             var newTask = response.newTask;
