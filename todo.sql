@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 19 déc. 2023 à 23:25
+-- Généré le : mer. 20 déc. 2023 à 14:30
 -- Version du serveur : 10.4.28-MariaDB
 -- Version de PHP : 8.2.4
 
@@ -135,10 +135,11 @@ INSERT INTO `todo` (`id`, `title`, `description`, `created_at`, `status`, `prior
 (72, 'task', NULL, '2023-12-19 16:26:59', 'doing', 2, 9),
 (73, 'qqqq', NULL, '2023-12-19 16:36:33', 'todo', 1, 9),
 (74, 'wkz', NULL, '2023-12-19 16:36:40', 'done', 1, 9),
-(75, 'sjq', NULL, '2023-12-19 16:57:45', 'todo', 1, 6),
+(75, 'sjq', NULL, '2023-12-19 16:57:45', 'doing', 1, 6),
 (76, 'testttttiii', NULL, '2023-12-19 17:00:45', 'doing', 2, 9),
 (77, 'qqqqhbnz', NULL, '2023-12-19 17:52:23', 'done', 2, 6),
-(78, 'tas', 'Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l\'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n\'a pas fait que survivre cinq siècles, mais s\'est aussi adapté à la bureautique informatique, sans que son contenu n\'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.', '2023-12-19 21:43:24', 'todo', 1, 9);
+(78, 'tas', 'Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l\'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n\'a pas fait que survivre cinq siècles, mais s\'est aussi adapté à la bureautique informatique, sans que son contenu n\'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.', '2023-12-19 21:43:24', 'doing', 1, 9),
+(80, 'jqbh', 'On sait depuis longtemps que travailler avec du texte lisible et contenant du sens est source de distractions, et empêche de se concentrer sur la mise en page elle-même. L\'avantage du Lorem Ipsum sur un texte générique comme \'Du texte. Du texte. Du texte.\' est qu\'il possède une distribution de lettres plus ou moins normale, et en tout cas comparable avec celle du français standard. De nombreuses suites logicielles de mise en page ou éditeurs de sites Web ont fait du Lorem Ipsum leur faux texte par défaut, et une recherche pour \'Lorem Ipsum\' vous conduira vers de nombreux sites qui n\'en sont encore qu\'à leur phase de construction. Plusieurs versions sont apparues avec le temps, parfois par accident, souvent intentionnellement (histoire d\'y rajouter de petits clins d\'oeil, voire des phrases em', '2023-12-20 10:26:15', 'todo', 1, 9);
 
 -- --------------------------------------------------------
 
@@ -191,7 +192,9 @@ INSERT INTO `todo_developers` (`id`, `todo_id`, `developer_id`) VALUES
 (118, 77, 9),
 (119, 78, 2),
 (120, 78, 3),
-(121, 78, 9);
+(121, 78, 9),
+(125, 80, 2),
+(126, 80, 3);
 
 -- --------------------------------------------------------
 
@@ -229,7 +232,8 @@ INSERT INTO `todo_tags` (`id`, `todo_id`, `tag_id`) VALUES
 (92, 76, 2),
 (93, 77, 1),
 (94, 78, 2),
-(95, 78, 3);
+(95, 78, 3),
+(97, 80, 1);
 
 --
 -- Index pour les tables déchargées
@@ -290,6 +294,12 @@ ALTER TABLE `todo_tags`
 --
 
 --
+-- AUTO_INCREMENT pour la table `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT pour la table `developers`
 --
 ALTER TABLE `developers`
@@ -311,19 +321,19 @@ ALTER TABLE `tags`
 -- AUTO_INCREMENT pour la table `todo`
 --
 ALTER TABLE `todo`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT pour la table `todo_developers`
 --
 ALTER TABLE `todo_developers`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
 
 --
 -- AUTO_INCREMENT pour la table `todo_tags`
 --
 ALTER TABLE `todo_tags`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- Contraintes pour les tables déchargées
