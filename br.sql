@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mer. 20 déc. 2023 à 14:30
+-- Généré le : mer. 20 déc. 2023 à 16:54
 -- Version du serveur : 10.4.28-MariaDB
 -- Version de PHP : 8.2.4
 
@@ -32,8 +32,44 @@ CREATE TABLE `comments` (
   `task_id` int(11) UNSIGNED NOT NULL,
   `comment_text` text NOT NULL,
   `posted_by` int(11) UNSIGNED NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `has_replies` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `comments`
+--
+
+INSERT INTO `comments` (`id`, `task_id`, `comment_text`, `posted_by`, `created_at`, `has_replies`) VALUES
+(4, 80, 'niice', 9, '2023-12-20 14:40:42', 0),
+(5, 80, 'goood', 9, '2023-12-20 16:38:40', 0),
+(6, 73, 'nadi', 9, '2023-12-20 16:47:23', 0),
+(7, 73, 'woow', 6, '2023-12-20 16:48:00', 0),
+(8, 82, 'wooow', 6, '2023-12-20 16:52:05', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `comment_replies`
+--
+
+CREATE TABLE `comment_replies` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `comment_id` int(11) UNSIGNED NOT NULL,
+  `reply_text` text NOT NULL,
+  `replied_by` int(11) UNSIGNED NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `comment_replies`
+--
+
+INSERT INTO `comment_replies` (`id`, `comment_id`, `reply_text`, `replied_by`, `created_at`) VALUES
+(5, 4, 'nadi', 9, '2023-12-20 16:33:34'),
+(6, 6, 'kml', 9, '2023-12-20 16:47:27'),
+(7, 6, 'yeah', 6, '2023-12-20 16:47:49'),
+(8, 8, 'yeah', 9, '2023-12-20 16:52:29');
 
 -- --------------------------------------------------------
 
@@ -139,7 +175,8 @@ INSERT INTO `todo` (`id`, `title`, `description`, `created_at`, `status`, `prior
 (76, 'testttttiii', NULL, '2023-12-19 17:00:45', 'doing', 2, 9),
 (77, 'qqqqhbnz', NULL, '2023-12-19 17:52:23', 'done', 2, 6),
 (78, 'tas', 'Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l\'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n\'a pas fait que survivre cinq siècles, mais s\'est aussi adapté à la bureautique informatique, sans que son contenu n\'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.', '2023-12-19 21:43:24', 'doing', 1, 9),
-(80, 'jqbh', 'On sait depuis longtemps que travailler avec du texte lisible et contenant du sens est source de distractions, et empêche de se concentrer sur la mise en page elle-même. L\'avantage du Lorem Ipsum sur un texte générique comme \'Du texte. Du texte. Du texte.\' est qu\'il possède une distribution de lettres plus ou moins normale, et en tout cas comparable avec celle du français standard. De nombreuses suites logicielles de mise en page ou éditeurs de sites Web ont fait du Lorem Ipsum leur faux texte par défaut, et une recherche pour \'Lorem Ipsum\' vous conduira vers de nombreux sites qui n\'en sont encore qu\'à leur phase de construction. Plusieurs versions sont apparues avec le temps, parfois par accident, souvent intentionnellement (histoire d\'y rajouter de petits clins d\'oeil, voire des phrases em', '2023-12-20 10:26:15', 'todo', 1, 9);
+(80, 'jqbh', 'On sait depuis longtemps que travailler avec du texte lisible et contenant du sens est source de distractions, et empêche de se concentrer sur la mise en page elle-même. L\'avantage du Lorem Ipsum sur un texte générique comme \'Du texte. Du texte. Du texte.\' est qu\'il possède une distribution de lettres plus ou moins normale, et en tout cas comparable avec celle du français standard. De nombreuses suites logicielles de mise en page ou éditeurs de sites Web ont fait du Lorem Ipsum leur faux texte par défaut, et une recherche pour \'Lorem Ipsum\' vous conduira vers de nombreux sites qui n\'en sont encore qu\'à leur phase de construction. Plusieurs versions sont apparues avec le temps, parfois par accident, souvent intentionnellement (histoire d\'y rajouter de petits clins d\'oeil, voire des phrases em', '2023-12-20 10:26:15', 'todo', 1, 9),
+(82, 'Lorem Ipsum', 'Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l\'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n\'a pas fait que survivre cinq siècles, mais s\'est aussi adapté à la bureautique informatique, sans que son contenu n\'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.', '2023-12-20 16:51:50', 'todo', 1, 6);
 
 -- --------------------------------------------------------
 
@@ -194,7 +231,10 @@ INSERT INTO `todo_developers` (`id`, `todo_id`, `developer_id`) VALUES
 (120, 78, 3),
 (121, 78, 9),
 (125, 80, 2),
-(126, 80, 3);
+(126, 80, 3),
+(130, 82, 3),
+(131, 82, 4),
+(132, 82, 9);
 
 -- --------------------------------------------------------
 
@@ -233,7 +273,9 @@ INSERT INTO `todo_tags` (`id`, `todo_id`, `tag_id`) VALUES
 (93, 77, 1),
 (94, 78, 2),
 (95, 78, 3),
-(97, 80, 1);
+(97, 80, 1),
+(100, 82, 1),
+(101, 82, 3);
 
 --
 -- Index pour les tables déchargées
@@ -246,6 +288,14 @@ ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_comments_task_id` (`task_id`),
   ADD KEY `fk_comments_posted_by` (`posted_by`);
+
+--
+-- Index pour la table `comment_replies`
+--
+ALTER TABLE `comment_replies`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `comment_id` (`comment_id`),
+  ADD KEY `replied_by` (`replied_by`);
 
 --
 -- Index pour la table `developers`
@@ -297,7 +347,13 @@ ALTER TABLE `todo_tags`
 -- AUTO_INCREMENT pour la table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT pour la table `comment_replies`
+--
+ALTER TABLE `comment_replies`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pour la table `developers`
@@ -321,19 +377,19 @@ ALTER TABLE `tags`
 -- AUTO_INCREMENT pour la table `todo`
 --
 ALTER TABLE `todo`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT pour la table `todo_developers`
 --
 ALTER TABLE `todo_developers`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT pour la table `todo_tags`
 --
 ALTER TABLE `todo_tags`
-  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- Contraintes pour les tables déchargées
@@ -345,6 +401,13 @@ ALTER TABLE `todo_tags`
 ALTER TABLE `comments`
   ADD CONSTRAINT `fk_comments_posted_by` FOREIGN KEY (`posted_by`) REFERENCES `developers` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_comments_task_id` FOREIGN KEY (`task_id`) REFERENCES `todo` (`id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `comment_replies`
+--
+ALTER TABLE `comment_replies`
+  ADD CONSTRAINT `comment_replies_ibfk_1` FOREIGN KEY (`comment_id`) REFERENCES `comments` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `comment_replies_ibfk_2` FOREIGN KEY (`replied_by`) REFERENCES `developers` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `todo`
