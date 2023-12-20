@@ -95,21 +95,22 @@
                     <div class='d-flex justify-content-between mt-3'>
                         <a href='edit.php?id={$todo['id']}' class='btn btn-info p-1 text-white'>Edit</a>
                         <a href='task_details.php?id={$todo['id']}' class='btn btn-info p-1 text-white'>Details</a>
-                        " . ($status === 'todo' ? "<a href='handle/goto.php?name=doing&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Doing</a>" : "") . "
-                        " . ($status === 'doing' ? "<a href='handle/goto.php?name=done&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Done</a>" : "") . "
+                        
+                        "/* . ($status === 'todo' ? "<a href='handle/goto.php?name=doing&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Doing</a>" : "") */ ."
+                        "/* . ($status === 'doing' ? "<a href='handle/goto.php?name=done&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Done</a>" : "") */ ."
                         
                         " . ($status === 'done' ? "
                             <div class='d-flex'>
                                 <a href='handle/delete.php?id={$todo['id']}' onclick='return confirm(\"Are you sure?\")' class='btn btn-danger p-1 mr-2'>
                                     <i class='fa fa-times'></i>
                                 </a>
-                                <a href='handle/goto.php?name=doing&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Move to Doing</a>
                             </div>
                         " : "") . "
                     </div>
                 </div>
             ";
-            
+            //<a href='handle/goto.php?name=doing&id={$todo['id']}&referrer=index.php' class='btn btn-info p-1 text-white'>Move to Doing</a>
+
         }
         } else {
             // Handle the case when there are no tasks for the given status
