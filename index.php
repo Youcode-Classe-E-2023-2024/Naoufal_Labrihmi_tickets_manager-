@@ -198,85 +198,87 @@
             <div class="row d-flex justify-content-between">
                 <!-- all -->
             <!-- All Task Section -->
-    <div class="col-md-3">
-        <h4 class="text-white">All Task</h4>
-        <div class="m-2 py-3 show-to-do all-task">
-            <?php
-            $stm = $conn->query("
-                SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
-                FROM todo
-                LEFT JOIN priorities ON todo.priority_id = priorities.id
-                LEFT JOIN developers ON todo.created_by = developers.id
-                WHERE todo.`status`='todo'
-                ORDER BY todo.id DESC
-            ");
-            ?>
-            <?php if ($stm->rowCount() < 1) : ?>
-                <div class="item">
-                    <div class="alert-info text-center">
-                        Empty to do task
-                    </div>
+            <div class="col-md-3">
+    <h4 class="text-white">All Task</h4>
+    <div class="m-2 py-3 show-to-do all-task">
+        <?php
+        $stm = $conn->query("
+            SELECT todo.*, priorities.name AS priority_name, developers.name AS created_by_name
+            FROM todo
+            LEFT JOIN priorities ON todo.priority_id = priorities.id
+            LEFT JOIN developers ON todo.created_by = developers.id
+            WHERE todo.`status`='todo'
+            ORDER BY todo.id DESC
+        ");
+        ?>
+        <?php if ($stm->rowCount() < 1) : ?>
+            <div class="item">
+                <div class="alert-info text-center">
+                    Empty to do task
                 </div>
-            <?php else : ?>
-                <?php while ($todo = $stm->fetch(PDO::FETCH_ASSOC)) : ?>
-                    <div class="alert alert-info p-2">
-                        <h4><?php echo $todo['title']; ?></h4>
-                        <?php
-                        // Fetch the developer names for the task
-                        $developerStmt = $conn->prepare("SELECT developers.name FROM developers INNER JOIN todo_developers ON developers.id = todo_developers.developer_id WHERE todo_developers.todo_id = :todo_id");
-                        $developerStmt->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+            </div>
+        <?php else : ?>
+            <?php while ($todo = $stm->fetch(PDO::FETCH_ASSOC)) : ?>
+                <div class="alert alert-info p-2">
+                    <h4><?php echo $todo['title']; ?></h4>
+                    <?php
+                    // Fetch the developer names for the task
+                    $developerStmt = $conn->prepare("SELECT developers.name FROM developers INNER JOIN todo_developers ON developers.id = todo_developers.developer_id WHERE todo_developers.todo_id = :todo_id");
+                    $developerStmt->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
 
-                        if ($developerStmt->execute()) {
-                            // Fetch the result
-                            $developerNames = $developerStmt->fetchAll(PDO::FETCH_COLUMN);
+                    if ($developerStmt->execute()) {
+                        // Fetch the result
+                        $developerNames = $developerStmt->fetchAll(PDO::FETCH_COLUMN);
 
-                            // Check if the developer names were found
-                            if ($developerNames !== false) {
-                                // Set the developer names in the $todo array
-                                $todo['developer_names'] = $developerNames;
-                            } else {
-                                // If developer names are not found, set a default value or handle accordingly
-                                $todo['developer_names'] = ['Unknown Developer'];
-                            }
+                        // Check if the developer names were found
+                        if ($developerNames !== false) {
+                            // Set the developer names in the $todo array
+                            $todo['developer_names'] = $developerNames;
                         } else {
-                            // If there was an error executing the query, set a default value or handle accordingly
+                            // If developer names are not found, set a default value or handle accordingly
                             $todo['developer_names'] = ['Unknown Developer'];
                         }
+                    } else {
+                        // If there was an error executing the query, set a default value or handle accordingly
+                        $todo['developer_names'] = ['Unknown Developer'];
+                    }
 
-                        // Fetch the created by name
-                        $createdByStmt = $conn->prepare("SELECT name FROM developers WHERE id = :created_by");
-                        $createdByStmt->bindParam(':created_by', $todo['created_by'], PDO::PARAM_INT);
-                        $createdByStmt->execute();
-                        $createdByName = $createdByStmt->fetch(PDO::FETCH_COLUMN);
-                        ?>
-                        <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
-                        <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
-                        <h5>Created by: <?php echo $createdByName; ?></h5>
-                        <h5>Created at: <?php echo $todo['created_at']; ?></h5>
-                        <!-- Add tags similar to the "Doing" and "Done" sections -->
-                        <?php
-                        $tagsQuery = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
-                        $tagsQuery->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
-                        $tagsQuery->execute();
-                        $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
-                        ?>
-                        <?php if (!empty($tags)) : ?>
-                            <div class="mb-2">
-                                <strong>Tags: </strong>
-                                <?php foreach ($tags as $tag) : ?>
-                                    <span class="badge bg-info"><?php echo $tag['name']; ?></span>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-                        <div class="d-flex justify-content-between mt-3">
-                            <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
-                            <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>&referrer=index.php" class="btn btn-info p-1 text-white">Doing</a>
+                    // Fetch the created by name
+                    $createdByStmt = $conn->prepare("SELECT name FROM developers WHERE id = :created_by");
+                    $createdByStmt->bindParam(':created_by', $todo['created_by'], PDO::PARAM_INT);
+                    $createdByStmt->execute();
+                    $createdByName = $createdByStmt->fetch(PDO::FETCH_COLUMN);
+                    ?>
+                    <h5>Task assigned to: <?php echo implode(', ', $todo['developer_names']); ?></h5>
+                    <h5>Priority: <?php echo $todo['priority_name']; ?></h5>
+                    <h5>Created by: <?php echo $createdByName; ?></h5>
+                    <h5>Created at: <?php echo $todo['created_at']; ?></h5>
+                    <!-- Add tags similar to the "Doing" and "Done" sections -->
+                    <?php
+                    $tagsQuery = $conn->prepare("SELECT tags.name FROM tags INNER JOIN todo_tags ON tags.id = todo_tags.tag_id WHERE todo_tags.todo_id = :todo_id");
+                    $tagsQuery->bindParam(':todo_id', $todo['id'], PDO::PARAM_INT);
+                    $tagsQuery->execute();
+                    $tags = $tagsQuery->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+                    <?php if (!empty($tags)) : ?>
+                        <div class="mb-2">
+                            <strong>Tags: </strong>
+                            <?php foreach ($tags as $tag) : ?>
+                                <span class="badge bg-info"><?php echo $tag['name']; ?></span>
+                            <?php endforeach; ?>
                         </div>
+                    <?php endif; ?>
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="edit.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Edit</a>
+                        <a href="task_details.php?id=<?php echo $todo['id'] ?>" class="btn btn-info p-1 text-white">Details</a>
+                        <a href="handle/goto.php?name=doing&id=<?php echo $todo['id'] ?>&referrer=index.php" class="btn btn-info p-1 text-white">Doing</a>
                     </div>
-                <?php endwhile; ?>
-            <?php endif; ?>
-        </div>
+                </div>
+            <?php endwhile; ?>
+        <?php endif; ?>
     </div>
+</div>
+
 
     <!-- Doing Section -->
     <div class="col-md-3">
